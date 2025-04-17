@@ -1,5 +1,7 @@
 import requests
-
+import requests
+from bs4 import BeautifulSoup
+import csv
 
 class ApiClient:
     def __init__(self, weather_api_key, flight_api_key):
@@ -120,3 +122,68 @@ class ApiClient:
         url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{city_name}"
         response = requests.get(url)
         return response.json().get("extract", "No description available.")
+    
+
+
+
+    def scrape_unesco_list(url="https://whc.unesco.org/en/list/"):
+      
+        countries_data = []
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        try:
+            response = requests.get(url, headers=headers, timeout=20)
+            response.raise_for_status()
+        
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            country_sections = soup.find_all('div', class_='list_site')
+            
+            for section in country_sections:
+                country_tag = section.find_previous('h4')
+                if country_tag:
+                    country_name = country_tag.get_text(strip=True)
+                    
+                    site_items = section.find_all('li')
+                    sites = []
+                    
+                    for item in site_items:
+                        site_name = item.find('a').get_text(strip=True)
+                        
+                        li_classes = item.get('class', [])
+                        category = "Unknown"
+                        
+                        if 'cultural_danger' in li_classes:
+                            category = "Cultural (Endangered)"
+                        elif 'cultural' in li_classes:
+                            category = "Cultural"
+                        elif 'natural_danger' in li_classes:
+                            category = "Natural (Endangered)"
+                        elif 'natural' in li_classes:
+                            category = "Natural"
+                        elif 'mixed_danger' in li_classes:
+                            category = "Mixed (Endangered)"
+                        elif 'mixed' in li_classes:
+                            category = "Mixed"
+                        
+                        sites.append({
+                            'site_name': site_name,
+                            'category': category
+                        })
+                    
+                    if country_name and sites:
+                       
+                        countries_data.append({
+                            'country': country_name,
+                            'heritage_sites': sites
+                        })
+
+        
+
+        except Exception as e:
+           
+            pass
+
+        return countries_data
