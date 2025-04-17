@@ -18,10 +18,10 @@ class TravelRecommender:
             safety_countries[:10],
             user_preferences.get("visa_free_only", True)
         )
-        
+        print(visa_countries)
        
         recommendations = []
-        for country in visa_countries[:6]:  
+        for country in visa_countries[:5]:  
             try:
                
                 temperature = self.api_client.get_weather_by_country(country["country"])

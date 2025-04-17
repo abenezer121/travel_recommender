@@ -26,4 +26,6 @@ The system uses several external APIs and CSV data files to gather the necessary
 - **Country descriptions**: Fetches a brief Wikipedia summary of the country or city to provide more context.
 
 ---
+## how to run 
 
+- interests=cultural,nature safety_preference=safe preferred_weather=warm visa_free_only=True origin=Ethiopia python3 run.py
